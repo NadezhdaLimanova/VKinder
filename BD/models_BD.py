@@ -29,8 +29,6 @@ class APPLICANTS(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     id_user: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     id_vk_applicant: Mapped[int] = mapped_column(nullable=False, unique=True)
-    first_name: Mapped[str] = mapped_column(String(40))
-    last_name: Mapped[str] = mapped_column(String(50))
     photo_1: Mapped[str]
     photo_2: Mapped[str]
     photo_3: Mapped[str]
@@ -48,8 +46,6 @@ class FAVORITES(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     id_user: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     id_vk_favorite: Mapped[int] = mapped_column(nullable=False, unique=True)
-    first_name: Mapped[str] = mapped_column(String(40))
-    last_name: Mapped[str] = mapped_column(String(50))
     photo_1: Mapped[str]
     photo_2: Mapped[str]
     photo_3: Mapped[str]
