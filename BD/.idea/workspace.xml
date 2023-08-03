@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b705f2d7-36a6-4a8a-8434-4d3292d45ae2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/func_BD.py" beforeDir="false" afterPath="$PROJECT_DIR$/func_BD.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models_BD.py" beforeDir="false" afterPath="$PROJECT_DIR$/models_BD.py" afterDir="false" />
     </list>
@@ -119,6 +120,8 @@
       <workItem from="1691041796120" duration="715000" />
       <workItem from="1691044647742" duration="4137000" />
       <workItem from="1691048865159" duration="65000" />
+      <workItem from="1691058116200" duration="56000" />
+      <workItem from="1691058258468" duration="1916000" />
     </task>
     <servers />
   </component>
@@ -151,6 +154,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pythonProject2$func_BD.coverage" NAME="func_BD Coverage Results" MODIFIED="1690719472799" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/models_BD_py$func_BD.coverage" NAME="func_BD Coverage Results" MODIFIED="1691042601404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/key_BD_py$func_BD.coverage" NAME="func_BD Coverage Results" MODIFIED="1691061421444" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/func_BD_py$func_BD.coverage" NAME="func_BD Coverage Results" MODIFIED="1691048766761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
