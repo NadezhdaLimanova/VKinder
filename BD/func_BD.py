@@ -32,11 +32,11 @@ def check_table():
     name_table = ["users", "applicants", "favorites"]
 
     for table in name_table:
-            check_tables = sqlalchemy.inspect(engine).has_table(f"{table}", schema="public")
-            if check_tables == True:
-                print(f"{table} существует в базе данных")
-            else:
-                print(f"{table} не существует в базе данных")
+        check_tables = sqlalchemy.inspect(engine).has_table(f"{table}", schema="public")
+        if check_tables == True:
+            print(f"{table} существует в базе данных")
+        else:
+            print(f"{table} не существует в базе данных")
 
 
 if __name__ == "__main__":
