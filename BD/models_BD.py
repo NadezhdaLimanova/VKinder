@@ -58,5 +58,5 @@ class FAVORITES(Base):
 
 
 def create_tables(engine):
-    Base.metadata.drop_all(engine)
+    # Base.metadata.drop_all(engine)  # если необходимо удалить базу данных
     Base.metadata.create_all(engine)
