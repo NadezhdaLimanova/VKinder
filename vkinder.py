@@ -112,7 +112,7 @@ class VKbot:
                             fav_photo_1 = photo_1
                             fav_photo_2 = photo_2
                             fav_photo_3 = photo_3
-                            message = "Ваш выбранные профили: ", fav_name_from_bd  fav_profile_link, fav_photo_1, fav_photo_2, fav_photo_3
+                            message = "Ваш выбранные профили: ", fav_name_from_bd,  fav_profile_link, fav_photo_1, fav_photo_2, fav_photo_3
                             self.write_msg(user_id, 3, message)
                     elif request == 'Пропустить':
                         if age is not None or age_bd is not None:
