@@ -1,6 +1,6 @@
 import sqlalchemy
 from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists
+from sqlalchemy_utils import database_exists, create_database
 
 from models_BD import Base
 from key_BD import username, password, name_bd
@@ -16,6 +16,7 @@ engine = create_engine(f'postgresql+psycopg2://{username}:{password}@localhost:5
 
 def check_database():
     if not database_exists(engine.url):
+        create_database(engine.url)
         Base.metadata.create_all(engine)
         print(f"Создание базы данных прошло успешно")
     else:
