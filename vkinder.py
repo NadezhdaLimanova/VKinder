@@ -7,10 +7,12 @@ from datetime import date
 
 
 class VKbot:
-    def __init__(self, token):
+    def __init__(self, token, token_user):
         # авторизация
         self.token = token
+        self.token_user = token_user
         self.vk = vk_api.VkApi(token=self.token)
+        self.vk_user = vk_api.VkApi(token=token_user)
         self.longpoll = VkLongPoll(self.vk)
         self.upload = VkUpload(self.vk)
         self.session_api = self.vk.get_api()
@@ -59,48 +61,28 @@ class VKbot:
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 user_id = event.user_id
-                user = self.session_api.users.get(user_ids=user_id, fields="bdate, city, sex") # получение информации о пользователе
-                first_name = user[0]['first_name']
-                bdate = user[0]['bdate']
-                sex = user[0]['sex']
-                city = user[0]['city']['title']
-                if len(bdate) == 9:  # проверка указан ли возраст
-                    bdate_year = bdate[-4:]
-                    now = date.today()
-                    year = now.year
-                    age = year - int(bdate_year)
-                else:
-                    age = None
-            if event.to_me:
+                if event.to_me:
                     request = event.text
+                    info = Vk_info_data(user_id, token).get_user_data()
+                    first_name = Vk_info_data(user_id, token).get_user_data()['first_name']   # Использование сторонних классов
+
                     if request == 'Начать' or request.lower() == 'привет':
-                        message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку! Нажми на кнопку ниже"
+                        message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
                     elif request == "Показать анкеты":
-                        user_id_from_bd = self.session_api.users.get(user_ids=user_id, fields="bdate, city, sex")
-                        bdate_bd = user[0]['bdate']
-                        sex_bd = user[0]['sex']
-                        city_bd = user[0]['city']['title']
-                        if len(bdate_bd) == 9:  # проверка указан ли возраст
-                            bdate_year = bdate_bd[-4:]
-                            now = date.today()
-                            year = now.year
-                            age_bd = year - int(bdate_year)
+                        res = Vk_info_data(user_id, token).check_bdate()     # Использование сторонних классов
+                        if len(res) > 10:
+                            self.write_msg(user_id, 4, res)
                         else:
-                            age_bd = None
-                        if age is not None or age_bd is not None:
-                            if age + 5 > age_bd > age - 5 and city == city_from_bd and sex != sex_from_bd: # проверка на совпадение данных пользователя с профилем из базы данных
-                            # информация из базы данных:
-                                name_from_bd = name
-                                profile_link = link
-                                photo_1 = photo_1
-                                photo_2 = photo_2
-                                photo_3 = photo_3
-                                message = "Вот несколько фотографий и имя пользователя, если вам интересен этот человек, то добавьте его в избранное или нажмите пропустить", name_from_bd, profile_link, photo_1, photo_2, photo_3
-                                self.write_msg(user_id, 2, message)
+                            bdate = res
+                            print(bdate)
+                    elif re.match(r'\d\d\.\d\d.\d\d\d\d', request):
+                            bdate = request
+                            print(bdate)
+
                     elif request == 'Показать избранное':
                         if counter == 0:
                             message = "Пока вы ничего не добавили в избранное"
@@ -128,7 +110,7 @@ class VKbot:
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)
                         counter += 1
-                    elif request == 'Пока' or request == 'пока':
+                    elif request.lower() == 'пока':
                         message = 'До свидания!'
                         self.write_msg(user_id, 4, message)
                     else:
@@ -137,9 +119,19 @@ class VKbot:
 
 
 
+
+
+
+
+
+
+
 if __name__ == "__main__":
     with open('token.txt', 'r', encoding='utf-8') as file:
         vk_token = file.read()
+    with open('token.txt', 'r', encoding='utf-8') as file:
+        vk_token_user = file.read()
     token = vk_token
-    bot = VKbot(token)
+    token_user = vk_token_user
+    bot = VKbot(token, token_user)
     bot.run()
