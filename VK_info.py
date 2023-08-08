@@ -7,6 +7,7 @@ from vk_api import VkUpload
 
 
 
+
 class Vk_info_data:
 
     def __init__(self, user_id, token=None, token_user=None):
@@ -31,23 +32,12 @@ class Vk_info_data:
         if resp:
             for key, value in resp[0].items():
                 if key == 'city':
-                    self.user_data[key] = value['id']
+                    self.user_data[key] = value['title']
                 else:
                     self.user_data[key] = value
-            print(self.user_data)
             return self.user_data
 
-    """Проверка наличия даты рождения. Если её нет - ввести"""
 
-    def check_bdate(self):
-        if self.get_user_data():
-            for item_dict in [self.user_data]:
-                try:
-                    if 'bdate' in item_dict.keys() or len(item_dict['bdate'].split('.')) != 3:
-                        return item_dict['bdate']
-                except KeyError:
-                    bot_message = 'Введите дату рождения в формате "ДД.ММ.ГГГГ:"'
-                    return bot_message
 
 
 
