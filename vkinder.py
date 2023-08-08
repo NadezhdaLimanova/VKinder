@@ -1,10 +1,12 @@
 from random import randrange
+import random
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 import datetime
-from BD.func_BD import check_database, check_table, add_user_database
+from pprint import pprint
+# from BD.func_BD import check_database, check_table, add_user_database
 import re
 
 class VKbot:
@@ -35,7 +37,7 @@ class VKbot:
         self.keyboard_3.add_button('Вернуться', color=VkKeyboardColor.SECONDARY)
 
 
-    def write_msg(self, user_id, i, message): # функция для определения в каком виде будет сообщение бота пользователю
+    def write_msg(self, user_id, i, message, attachment=None): # функция для определения в каком виде будет сообщение бота пользователю
         self.user_id = user_id
         self.i = i
         self.message = message
@@ -47,6 +49,7 @@ class VKbot:
         if self.i == 2:
             self.vk.method('messages.send', {'user_id': user_id,
                                              'message': self.message,
+                                             'attachment': attachment,
                                              'random_id': randrange(10 ** 7),
                                              'keyboard': self.keyboard_2.get_keyboard()})
         if self.i == 3:
@@ -78,25 +81,6 @@ class VKbot:
                 else:
                     self.user_data[key] = value
             return self.user_data
-
-    """Поиск пары по параметрам"""
-
-    # def user_search(self, user_info):
-    #
-    #     resp = self.vk_user.method('users.search', {
-    #         'age_from': self.user_info['age'] - 5,
-    #         'age_to': self.user_info['age'] + 5,
-    #         'city': self.user_info['city'],
-    #         'sex': 3 - self.user_info['sex'],
-    #         'relation': 6,
-    #         'status': 1,
-    #         'has_photo': 1,
-    #         'count': 1000,
-    #         'v': 5.131})
-    #     print(resp)
-    #     if resp:
-    #         if resp.get('items'):
-    #             return resp.get('items')
 
 
     def check_bdate(self, user_info, user_id):
@@ -136,8 +120,80 @@ class VKbot:
                     city = self.listen()
                     return city
 
+    """Поиск пары по параметрам"""
+
+    def user_search(self, user_info):
+        resp = self.vk_user.method('users.search', {
+            'age_from': user_info['age'] - 5,
+            'age_to': user_info['age'] + 5,
+            'hometown': user_info['city'],
+            'sex': 3 - user_info['sex'],
+            'relation': 6,
+            'status': 1,
+            'has_photo': 1,
+            'count': 1000,
+            'v': 5.131})
+        if resp:
+            if resp.get('items'):
+                return resp.get('items')
+
+    def get_users_list(self, users_data, user_id):
+        not_private_list = []
+        if users_data:
+            for person_dict in users_data:
+                if person_dict.get('is_closed') == False:
+                    not_private_list.append(
+                        {'first_name': person_dict.get('first_name'), 'last_name': person_dict.get('last_name'),
+                         'id': person_dict.get('id'), 'vk_link': 'vk.com/id' + str(person_dict.get('id')),
+                         'is_closed': person_dict.get('is_closed')
+                         })
+                else:
+                    continue
+            return not_private_list
+
+    """Выбор случайного аккаунта"""
+
+    def get_random_user(self, users_data, user_id):
+        if users_data:
+            return random.choice(users_data)
+
+    """Получение фотографий из VK"""
+
+    def get_photos(self, vk_id):
+
+        resp = self.vk_user.method('photos.getAll', {
+            'owner_id': vk_id,
+            'album_id': 'profile',
+            'extended': 'likes',
+            'count': 25
+        })
+        if resp:
+            if resp.get('items'):
+                return resp.get('items')
+
+    def sort_by_likes(self, photos_dict):
+        photos_by_likes_list = []
+
+        for photos in photos_dict:
+            likes = photos.get('likes')
+            photos_by_likes_list.append([photos.get('owner_id'), photos.get('id'), likes.get('count')])
+        photos_by_likes_list = sorted(photos_by_likes_list, key=lambda x: x[2], reverse=True)
+        return photos_by_likes_list
+
+    """Получение 3 лучших фотографий на основе лайков"""
+
+    def get_photos_list(self, sort_list):
+        photos_list = []
+        count = 0
+        for photos in sort_list:
+            photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
+            count += 1
+            if count == 3:
+                return photos_list
+
 
     def run(self):  # функция для алгоритма общения с пользователем и вывода информации
+        applicants_list = []
         counter = 0
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
@@ -155,66 +211,41 @@ class VKbot:
                         self.write_msg(user_id, 1, message)
                     elif request == "Показать анкеты":
                         user_info = self.get_user_data(user_id)
-                        print(user_info)
                         age = self.check_bdate(user_info, user_id)
-                        print(age)
                         city = self.check_city(user_info, user_id)
-                        print(city)
                         if 'bdate' in user_info:
                             del user_info['bdate']
                             user_info['age'] = age
                         else:
                             user_info['age'] = age
-                        print(user_info)
+
                         if 'city' not in user_info:
                             user_info['city'] = city
-                        print(user_info)
-                        add_user_database(user_info)
-                        # profile_link = link
-                        # photo_1 = photo_1
-                        # photo_2 = photo_2
-                        # photo_3 = photo_3
+                        # add_user_database(user_info)
+                        users_data = self.user_search(user_info)
+                        list = self.get_users_list(users_data, user_id)
+                        get_vk_id = self.get_random_user(list, user_id)
+                        pprint(get_vk_id)
+                        photos_dict = self.get_photos(get_vk_id['id'])
+                        photos_by_likes_list = self.sort_by_likes(photos_dict)
+                        sort_list = self.get_photos_list(photos_by_likes_list)
+                        pprint(sort_list)
+                        if get_vk_id['id'] not in applicants_list:
+                            self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' + get_vk_id['vk_link']}, {','.join(sort_list)})
+                            applicants_list.append(get_vk_id)
 
-                        # user_id_from_bd = self.session_api.users.get(user_ids=user_id, fields="bdate, city, sex")
-                        # bdate_bd = user[0]['bdate']
-                        # sex_bd = user[0]['sex']
-                        # city_bd = user[0]['city']['title']
-                        # if len(bdate_bd) == 9:  # проверка указан ли возраст
-                        #     bdate_year = bdate_bd[-4:]
-                        #     now = date.today()
-                        #     year = now.year
-                        #     age_bd = year - int(bdate_year)
-                        # else:
-                        #     age_bd = None
-                        # if age is not None or age_bd is not None:
-                        #     if age + 5 > age_bd > age - 5 and city == city_from_bd and sex != sex_from_bd: # проверка на совпадение данных пользователя с профилем из базы данных
-                        #     # информация из базы данных:
-                        #
-                        # message = "Вот несколько фотографий и имя пользователя, если вам интересен этот человек, то добавьте его в избранное или нажмите пропустить", name_from_bd, profile_link, photo_1, photo_2, photo_3
-                        # self.write_msg(user_id, 2, message)
                     elif request == 'Показать избранное':
                         if counter == 0:
                             message = "Пока вы ничего не добавили в избранное"
                             self.write_msg(user_id, 3, message)
                         else:
-                            # информация из базы данных
-                            fav_name_from_bd = name
-                            fav_profile_link = link
-                            fav_photo_1 = photo_1
-                            fav_photo_2 = photo_2
-                            fav_photo_3 = photo_3
+
                             message = "Ваш выбранные профили: ", fav_name_from_bd,  fav_profile_link, fav_photo_1, fav_photo_2, fav_photo_3
                             self.write_msg(user_id, 3, message)
                     elif request == 'Пропустить':
-                        if age is not None or age_bd is not None:
-                            if age + 5 > age_bd > age - 5 and city == city_from_bd and sex != sex_from_bd:
-                                name_from_bd = name
-                                profile_link = link
-                                photo_1 = photo_1
-                                photo_2 = photo_2
-                                photo_3 = photo_3
-                                message = "Вот несколько фотографий и имя пользователя, если вам интересен этот человек, то добавьте его в избранное или нажмите пропустить", name_from_bd, profile_link, photo_1, photo_2, photo_3
-                                self.write_msg(user_id, 2, message)
+                        message = '4685ekygc'
+                        self.write_msg(user_id, 2, message)
+
                     elif request == 'Добавить в избранное':  # добавить избранный профиль в таблицу базы данных
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)
@@ -236,11 +267,11 @@ class VKbot:
 
 
 if __name__ == "__main__":
-    check_database()
-    check_table()
+    # check_database()
+    # check_table()
     with open('token.txt', 'r', encoding='utf-8') as file:
         vk_token = file.read()
-    with open('token.txt', 'r', encoding='utf-8') as file:
+    with open('token_vk.txt', 'r', encoding='utf-8') as file:
         vk_token_user = file.read()
     token = vk_token
     token_user = vk_token_user
