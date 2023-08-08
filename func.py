@@ -112,20 +112,20 @@ def check_city(user_data, user_id):
     return False
 
 """Название города в id города"""
-# Зачем?
 
-# def city_id(city_name):
-#     resp = vk_user.method('database.getCities', {
-#                     'country_id': 1,
-#                     'q': f'{city_name}',
-#                     'need_all': 0,
-#                     'count': 1000,
-#                     'v': 5.131})
-#     if resp:
-#         if resp.get('items'):
-#             return resp.get('items')
-#         write_msg(city_name, 'Ошибка, проверьте город', None)
-#         return False
+
+def city_id(city_name):
+    resp = vk_user.method('database.getCities', {
+                    'country_id': 1,
+                    'q': f'{city_name}',
+                    'need_all': 0,
+                    'count': 1000,
+                    'v': 5.131})
+    if resp:
+        if resp.get('items'):
+            return resp.get('items')
+        write_msg(city_name, 'Ошибка, проверьте город', None)
+        return False
 
 
 
@@ -344,6 +344,4 @@ def loop_bot():
 
 
 
-# В итоге получается, что мы всю информацию о пользователях берем не из таблицы, а напрямую из контакта. зачем тогда нужны таблицы поиска, белого списка и таблица пользователя?
-# класс внутри которого происходит заполнние белого списка и черного и класс, внутри которого вызывается информация из белого списка
-# может лучше объединить таблицу поиска и белый список, чтоб информацию о нужных пользователях с нужным критерием сразу записывать в белый список?
+
