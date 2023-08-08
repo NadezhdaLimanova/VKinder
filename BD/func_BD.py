@@ -2,10 +2,10 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-from models_BD import Base, users_table, applicants_table, favorites_table
-from key_BD import username, password, name_bd
+
+from BD.models_BD import Base, users_table, applicants_table, favorites_table
+from BD.key_BD import username, password, name_bd
 
 
 engine = create_engine(f'postgresql+psycopg2://{username}:{password}@localhost:5432/{name_bd}')
@@ -39,21 +39,21 @@ def check_table():
             print(f"{table} не существует в базе данных")
 
 
-def add_user_database(users_data: dict):
-    if check_users(users_data['id']) is None:
+def add_user_database(ass_with_finger: dict):
+    if check_users(ass_with_finger['id']) is None:
         try:
-            session.add(users_table(id_vk_users=users_data['id'], sex=users_data['sex'], age=users_data['bdate'], city=1))
+            session.add(users_table(id_vk_users=ass_with_finger['id'], sex=ass_with_finger['sex'], age=ass_with_finger['age'], city=ass_with_finger['city']))
             session.commit()
             return True
         except(IntegrityError, InvalidRequestError):
             return False
 
 
-def check_users(user_data: str):
+def check_users(ass_with_finger: str):
     """
     Проверяем, существуют ли пользователь с таким ID
     """
-    current_user_id = session.query(users_table).filter_by(id_vk_users=user_data).first()
+    current_user_id = session.query(users_table).filter_by(id_vk_users=ass_with_finger).first()
     return current_user_id
 
 

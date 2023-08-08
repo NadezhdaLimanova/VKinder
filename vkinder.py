@@ -3,7 +3,7 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
-from datetime import date
+import datetime
 from VK_info import Vk_info_data
 from BD.func_BD import check_database, check_table, add_user_database
 import re
@@ -118,7 +118,7 @@ class VKbot:
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
-                        add_user_database(Vk_info_data.get_user_data(self))
+
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
@@ -138,7 +138,7 @@ class VKbot:
                         if 'city' not in user_info:
                             user_info['city'] = city
                         print(user_info)
-
+                        add_user_database(user_info)
                         # profile_link = link
                         # photo_1 = photo_1
                         # photo_2 = photo_2
