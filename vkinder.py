@@ -4,7 +4,9 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 from datetime import date
-
+from VK_info import Vk_info_data
+from BD.func_BD import check_database, check_table, add_user_database
+import re
 
 class VKbot:
     def __init__(self, token, token_user):
@@ -69,6 +71,7 @@ class VKbot:
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
+                        add_user_database(Vk_info_data.get_user_data(self))
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
@@ -127,6 +130,8 @@ class VKbot:
 
 
 if __name__ == "__main__":
+    check_database()
+    check_table()
     with open('token.txt', 'r', encoding='utf-8') as file:
         vk_token = file.read()
     with open('token.txt', 'r', encoding='utf-8') as file:
