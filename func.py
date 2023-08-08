@@ -178,8 +178,7 @@ def get_users_list(users_data, user_id):
             else:
                 continue
         return not_private_list
-    write_msg(user_id, 'Ошибка', None)
-    return False
+
 
 
 """Объединение пользовательских данных"""
