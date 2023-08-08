@@ -5,6 +5,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 from datetime import date
 from VK_info import Vk_info_data
+from BD.func_BD import check_database, check_table, add_user_database
 import re
 
 class VKbot:
@@ -117,6 +118,7 @@ class VKbot:
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
+                        add_user_database(Vk_info_data.get_user_data(self))
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
@@ -137,15 +139,10 @@ class VKbot:
                             user_info['city'] = city
                         print(user_info)
 
-
-
-                        # users_name = Vk_info_data(user_id, token, token_user).user_search()['first_name']['second name']
-                        # print(users_name)
                         # profile_link = link
                         # photo_1 = photo_1
                         # photo_2 = photo_2
                         # photo_3 = photo_3
-
 
                         # user_id_from_bd = self.session_api.users.get(user_ids=user_id, fields="bdate, city, sex")
                         # bdate_bd = user[0]['bdate']
@@ -208,6 +205,8 @@ class VKbot:
 
 
 if __name__ == "__main__":
+    check_database()
+    check_table()
     with open('token.txt', 'r', encoding='utf-8') as file:
         vk_token = file.read()
     with open('token.txt', 'r', encoding='utf-8') as file:
@@ -216,4 +215,3 @@ if __name__ == "__main__":
     token_user = vk_token_user
     bot = VKbot(token, token_user)
     bot.run()
-
