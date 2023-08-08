@@ -217,21 +217,3 @@ if __name__ == "__main__":
     bot = VKbot(token, token_user)
     bot.run()
 
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    with open('token.txt', 'r', encoding='utf-8') as file:
-        vk_token = file.read()
-    with open('token.txt', 'r', encoding='utf-8') as file:
-        vk_token_user = file.read()
-    token = vk_token
-    token_user = vk_token_user
-    bot = VKbot(token, token_user)
-    bot.run()
