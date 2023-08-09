@@ -6,8 +6,9 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 import datetime
 from pprint import pprint
-# from BD.func_BD import check_database, check_table, add_user_database
+from BD.func_BD import check_database, check_table, add_user_database, add_applicant_database, add_favorite_database
 import re
+
 
 class VKbot:
     def __init__(self, token, token_user):
@@ -190,6 +191,8 @@ class VKbot:
             count += 1
             if count == 3:
                 return photos_list
+            if count < 3:
+
 
 
     def run(self):  # функция для алгоритма общения с пользователем и вывода информации
@@ -221,7 +224,9 @@ class VKbot:
 
                         if 'city' not in user_info:
                             user_info['city'] = city
-                        # add_user_database(user_info)
+
+                        add_user_database(user_info)
+
                         users_data = self.user_search(user_info)
                         list = self.get_users_list(users_data, user_id)
                         get_vk_id = self.get_random_user(list, user_id)
@@ -231,8 +236,14 @@ class VKbot:
                         sort_list = self.get_photos_list(photos_by_likes_list)
                         pprint(sort_list)
                         if get_vk_id['id'] not in applicants_list:
-                            self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' + get_vk_id['vk_link']}, {','.join(sort_list)})
+                            self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' +
+                                                        'Ссылка на профиль: ' + get_vk_id['vk_link']},
+                                           {','.join(sort_list)})
                             applicants_list.append(get_vk_id)
+                            add_applicant_database(get_vk_id, user_info)
+
+
+
 
                     elif request == 'Показать избранное':
                         if counter == 0:
@@ -247,6 +258,8 @@ class VKbot:
                         self.write_msg(user_id, 2, message)
 
                     elif request == 'Добавить в избранное':  # добавить избранный профиль в таблицу базы данных
+                        add_favorite_database(get_vk_id, user_info)
+
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)
                         counter += 1
@@ -267,8 +280,8 @@ class VKbot:
 
 
 if __name__ == "__main__":
-    # check_database()
-    # check_table()
+    check_database()
+    check_table()
     with open('token.txt', 'r', encoding='utf-8') as file:
         vk_token = file.read()
     with open('token_vk.txt', 'r', encoding='utf-8') as file:
@@ -277,3 +290,5 @@ if __name__ == "__main__":
     token_user = vk_token_user
     bot = VKbot(token, token_user)
     bot.run()
+
+

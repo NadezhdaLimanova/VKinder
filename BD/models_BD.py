@@ -27,9 +27,10 @@ class applicants_table(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     id_user: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    id_vk_applicant: Mapped[int] = mapped_column(nullable=False, unique=True)
+    id_vk_applicant: Mapped[str] = mapped_column(nullable=False, unique=True)
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(40))
+    id_link_applicant: Mapped[str] = mapped_column(String(50))
     photo_1: Mapped[str]
     photo_2: Mapped[str]
     photo_3: Mapped[str]
@@ -46,9 +47,10 @@ class favorites_table(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     id_user: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    id_vk_favorite: Mapped[int] = mapped_column(nullable=False, unique=True)
+    id_vk_favorite: Mapped[str] = mapped_column(nullable=False, unique=True)
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(40))
+    id_link_favorite: Mapped[str] = mapped_column(String(50))
     photo_1: Mapped[str]
     photo_2: Mapped[str]
     photo_3: Mapped[str]
