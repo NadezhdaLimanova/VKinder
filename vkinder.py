@@ -1,3 +1,4 @@
+#coding: utf-8
 from random import randrange
 import random
 import vk_api
@@ -168,12 +169,12 @@ class VKbot:
             'count': 25
         })
         if resp:
+            print(resp)
             if resp.get('items'):
                 return resp.get('items')
 
     def sort_by_likes(self, photos_dict):
         photos_by_likes_list = []
-
         for photos in photos_dict:
             likes = photos.get('likes')
             photos_by_likes_list.append([photos.get('owner_id'), photos.get('id'), likes.get('count')])
@@ -185,11 +186,18 @@ class VKbot:
     def get_photos_list(self, sort_list):
         photos_list = []
         count = 0
-        for photos in sort_list:
-            photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
-            count += 1
-            if count == 3:
-                return photos_list
+        if len(sort_list) == 1 or len(sort_list) == 2:
+            for photos in sort_list:
+                photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
+            return photos_list
+        else:
+            for photos in sort_list:
+                photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
+                count += 1
+                if count == 3:
+                    return photos_list
+
+
 
 
     def run(self):  # функция для алгоритма общения с пользователем и вывода информации
@@ -200,16 +208,25 @@ class VKbot:
                 user_id = event.user_id
                 if event.to_me:
                     request = event.text
-                    # info = self.get_user_data()
-                    first_name = self.get_user_data(user_id)['first_name']   # Использование сторонних классов
+                    first_name = self.get_user_data(user_id)['first_name']
+
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
 
+                    elif request == 'Показать избранное':
+                        if counter == 0:
+                            message = "Пока вы ничего не добавили в избранное"
+                            self.write_msg(user_id, 3, message)
+                        else:
+                            message = "Ваш выбранные профили: "
+                            self.write_msg(user_id, 3, message)
+
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
-                    elif request == "Показать анкеты":
+
+                    elif request == "Показать анкеты" or 'Пропустить':
                         user_info = self.get_user_data(user_id)
                         age = self.check_bdate(user_info, user_id)
                         city = self.check_city(user_info, user_id)
@@ -218,45 +235,40 @@ class VKbot:
                             user_info['age'] = age
                         else:
                             user_info['age'] = age
-
                         if 'city' not in user_info:
                             user_info['city'] = city
                         # add_user_database(user_info)
                         users_data = self.user_search(user_info)
                         list = self.get_users_list(users_data, user_id)
                         get_vk_id = self.get_random_user(list, user_id)
-                        pprint(get_vk_id)
-                        photos_dict = self.get_photos(get_vk_id['id'])
-                        photos_by_likes_list = self.sort_by_likes(photos_dict)
-                        sort_list = self.get_photos_list(photos_by_likes_list)
-                        pprint(sort_list)
+                        print(get_vk_id)
+                        sort_list = self.get_photos_list(self.sort_by_likes(self.get_photos(get_vk_id['id'])))
+                        print(sort_list)
+
                         if get_vk_id['id'] not in applicants_list:
-                            self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' + get_vk_id['vk_link']}, {','.join(sort_list)})
-                            applicants_list.append(get_vk_id)
-
-                    elif request == 'Показать избранное':
-                        if counter == 0:
-                            message = "Пока вы ничего не добавили в избранное"
-                            self.write_msg(user_id, 3, message)
-                        else:
-
-                            message = "Ваш выбранные профили: ", fav_name_from_bd,  fav_profile_link, fav_photo_1, fav_photo_2, fav_photo_3
-                            self.write_msg(user_id, 3, message)
-                    elif request == 'Пропустить':
-                        message = '4685ekygc'
-                        self.write_msg(user_id, 2, message)
+                            if len(sort_list) == 3:
+                                self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' + get_vk_id['vk_link']}, {','.join(sort_list)})
+                                applicants_list.append(get_vk_id)
+                            else:
+                                get_vk_id_2 = self.get_random_user(list, user_id)
+                                sort_list = self.get_photos_list(self.sort_by_likes(self.get_photos(get_vk_id['id'])))
+                                self.write_msg(user_id, 2, {get_vk_id['first_name'] + ' ' + get_vk_id[
+                                    'last_name'] + '\n' + 'Ссылка на профиль: ' + get_vk_id['vk_link']},
+                                               {','.join(sort_list)})
+                                applicants_list.append(get_vk_id)
 
                     elif request == 'Добавить в избранное':  # добавить избранный профиль в таблицу базы данных
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)
                         counter += 1
+
                     elif request.lower() == 'пока':
                         message = 'До свидания!'
                         self.write_msg(user_id, 4, message)
+
                     else:
                         message = "Не поняла Вашего ответа...Напишите 'привет'"
                         self.write_msg(user_id, 4, message)
-
 
 
 
