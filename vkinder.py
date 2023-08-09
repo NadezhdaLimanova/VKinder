@@ -1,4 +1,3 @@
-# coding: utf-8
 from random import randrange
 import random
 import vk_api
@@ -120,6 +119,8 @@ class VKbot:
                     city = self.listen()
                     return city
 
+
+
     """Поиск пары по параметрам"""
 
     def user_search(self, user_info):
@@ -186,9 +187,8 @@ class VKbot:
         photos_list = []
         count = 0
         if len(sort_list) == 1 or len(sort_list) == 2:
-            for photos in sort_list:
-                photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
-            return photos_list
+            message = 'У этого пользователя слишком мало фотографий'
+            self.write_msg(self.user_id, 4, message)
         else:
             for photos in sort_list:
                 photos_list.append('photo' + str(photos[0]) + '_' + str(photos[1]))
@@ -199,12 +199,13 @@ class VKbot:
     def run(self):  # функция для алгоритма общения с пользователем и вывода информации
         applicants_list = []
         counter = 0
+        counter_1 = 0
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 user_id = event.user_id
                 if event.to_me:
                     request = event.text
-                    # info = self.get_user_data()
+                    #info = self.get_user_data()
                     first_name = self.get_user_data(user_id)['first_name']   # Использование сторонних классов
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
@@ -216,40 +217,44 @@ class VKbot:
                             self.write_msg(user_id, 3, message)
                         else:
                             message = "Ваш выбранные профили: "
+
                             self.write_msg(user_id, 3, message)
 
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
 
-                    elif request == "Показать анкеты" or 'Пропустить':
-                        user_info = self.get_user_data(user_id)
-                        age = self.check_bdate(user_info, user_id)
-                        city = self.check_city(user_info, user_id)
-                        if 'bdate' in user_info:
-                            del user_info['bdate']
-                            user_info['age'] = age
-                        else:
-                            user_info['age'] = age
-                        if 'city' not in user_info:
-                            user_info['city'] = city
-
+                    elif request in ["Показать анкеты", 'Пропустить']:
+                        if counter_1 == 0:
+                            user_info = self.get_user_data(user_id)
+                            age = self.check_bdate(user_info, user_id)
+                            city = self.check_city(user_info, user_id)
+                            if 'bdate' in user_info:
+                                del user_info['bdate']
+                                user_info['age'] = age
+                            else:
+                                user_info['age'] = age
+                            if 'city' not in user_info:
+                                user_info['city'] = city
+                        counter_1 += 1
                         add_user_database(user_info)
+                        try:
+                            users_data = self.user_search(user_info)
+                            list = self.get_users_list(users_data, user_id)
+                            get_vk_id = self.get_random_user(list, user_id)
+                            print(get_vk_id)
+                            sort_list = self.get_photos_list(self.sort_by_likes(self.get_photos(get_vk_id['id'])))
 
-                        users_data = self.user_search(user_info)
-                        list = self.get_users_list(users_data, user_id)
-                        get_vk_id = self.get_random_user(list, user_id)
-                        print(get_vk_id)
-                        sort_list = self.get_photos_list(self.sort_by_likes(self.get_photos(get_vk_id['id'])))
-                        print(sort_list)
-
-                        if get_vk_id['id'] not in applicants_list:
-                            self.write_msg(user_id, 2, {
-                                get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' +
-                                get_vk_id['vk_link']}, {','.join(sort_list)})
-                            applicants_list.append(get_vk_id)
-                            add_applicant_database(get_vk_id, user_info)
-
+                            if get_vk_id['id'] not in applicants_list:
+                                self.write_msg(user_id, 2, {
+                                    get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' +
+                                    get_vk_id['vk_link']}, {','.join(sort_list)})
+                                applicants_list.append(get_vk_id)
+                                add_applicant_database(get_vk_id, user_info)
+                        except TypeError:
+                            message = 'Ошибка, попробуйте заново'
+                            self.write_msg(user_id, 4, message)
+                            counter_1 -= 1
 
 
                     elif request == 'Добавить в избранное':  # добавить избранный профиль в таблицу базы данных
@@ -266,6 +271,7 @@ class VKbot:
                     else:
                         message = "Не поняла Вашего ответа...Напишите 'привет'"
                         self.write_msg(user_id, 4, message)
+
 
 
 if __name__ == "__main__":
