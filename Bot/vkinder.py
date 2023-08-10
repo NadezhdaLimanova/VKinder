@@ -5,11 +5,8 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 import datetime
-from pprint import pprint
-# from BD.func_BD import add_user_database, add_applicant_database, add_favorite_database, favorites_output
+from BD.func_BD import add_user_database, add_applicant_database, add_favorite_database, favorites_output
 import re
-
-
 
 
 class VKbot:
@@ -65,8 +62,8 @@ class VKbot:
                                              'keyboard': self.keyboard_2.get_keyboard()})
         if self.i == 3:
             self.vk.method('messages.send', {'user_id': user_id, 'message': self.message,
-                                             'random_id': randrange(10 ** 7),
                                              'attachment': attachment,
+                                             'random_id': randrange(10 ** 7),
                                              'keyboard': self.keyboard_3.get_keyboard()})
         if self.i == 4:
             self.vk.method('messages.send', {'user_id': user_id, 'message': self.message,
@@ -103,7 +100,7 @@ class VKbot:
                     self.user_data[key] = value
             return self.user_data
 
-    # """функция для получения информации о дате рождения пользователя"""
+    # """функция для получения информации о пользователе из Вконтакте"""
 
     def check_bdate(self, user_info, user_id):
         if user_info:
@@ -130,8 +127,6 @@ class VKbot:
                         age = datetime.datetime.now().year - int(bdate[-4:])
                         return age
 
-    # """функция для получения информации о городе пользователя"""
-
     def check_city(self, user_info, user_id):
         if user_info:
             for item_dict in [user_info]:
@@ -144,7 +139,9 @@ class VKbot:
                     city = self.listen()
                     return city
 
-    """Поиск потенциальных кандидатов для пользователя по определенным параметрам"""
+
+
+    """Поиск пары по параметрам"""
 
     def user_search(self, user_info):
         resp = self.vk_user.method('users.search', {
@@ -161,8 +158,6 @@ class VKbot:
             if resp.get('items'):
                 return resp.get('items')
 
-    # """отсеивание закрытых аккаунтов потенциальных кандидатов"""
-
     def get_users_list(self, users_data, user_id):
         not_private_list = []
         if users_data:
@@ -177,13 +172,13 @@ class VKbot:
                     continue
             return not_private_list
 
-    """Выбор случайного  из списка потенциальных кандидатов"""
+    """Выбор случайного аккаунта"""
 
     def get_random_user(self, users_data, user_id):
         if users_data:
             return random.choice(users_data)
 
-    """Получение фотографий потенциального кандидата из VK"""
+    """Получение фотографий из VK"""
 
     def get_photos(self, vk_id):
 
@@ -197,8 +192,6 @@ class VKbot:
             if resp.get('items'):
                 return resp.get('items')
 
-    # """сортировка фотографий по количеству лайков"""
-
     def sort_by_likes(self, photos_dict):
         photos_by_likes_list = []
         for photos in photos_dict:
@@ -207,7 +200,7 @@ class VKbot:
         photos_by_likes_list = sorted(photos_by_likes_list, key=lambda x: x[2], reverse=True)
         return photos_by_likes_list
 
-    """Получение 3 фотографий с самым большим количеством лайков"""
+    """Получение 3 лучших фотографий на основе лайков"""
 
     def get_photos_list(self, sort_list):
         photos_list = []
@@ -221,8 +214,6 @@ class VKbot:
                 count += 1
                 if count == 3:
                     return photos_list
-
-    # """функция, запускающая бота"""
 
     def run(self):
         applicants_list = []
@@ -243,20 +234,14 @@ class VKbot:
                             message = "Пока вы ничего не добавили в избранное"
                             self.write_msg(user_id, 3, message)
                         else:
-                            # favorites_list = favorites_output(user_info)
-                            favorites_list = [{'id_link_favorites': 'https://vk.com/id231613868', 'first_name': 'Р”РјРёС‚СЂРёР№', 'last_name': 'Р�РІР°РЅРѕРІ', 'photo_1': 'photo231613868_457267795', 'photo_2': 'photo231613868_457254237', 'photo_3': 'photo231613868_457267089'}, {'id_link_favorites': 'https://vk.com/id324868454', 'first_name': 'РџР°РІРµР»', 'last_name': 'Р–СѓРєРѕРІ', 'photo_1': 'photo324868454_456240157', 'photo_2': 'photo324868454_456239364', 'photo_3': 'photo324868454_456239205'}]
-                            # favorites_list = ['https://vk.com/id231613868', 'Р”РјРёС‚СЂРёР№', 'Р�РІР°РЅРѕРІ', 'photo231613868_457267795', 'photo231613868_457254237', 'photo231613868_457267089'}, {'id_link_favorites': 'https://vk.com/id324868454', 'first_name': 'РџР°РІРµР»', 'last_name': 'Р–СѓРєРѕРІ', 'photo_1': 'photo324868454_456240157', 'photo_2': 'photo324868454_456239364', 'photo_3': 'photo324868454_456239205'}]
+                            favorites_list = favorites_output(user_info)
 
                             message = "Ваш выбранные профили: "
                             self.write_msg(user_id, 3, message)
                             for i in favorites_list:
-                                print(i)
                                 self.write_msg(user_id, 3, {
-                                    i['first_name'] + ' ' + i[
-                                        'last_name'] + '\n' + 'Ссылка на профиль: ' +
+                                    i['first_name'] + ' ' + i['last_name'] + '\n' + 'Ссылка на профиль: ' +
                                     i['id_link_favorites']}, {','.join([i['photo_1'], i['photo_2'], i['photo_3']])})
-
-
 
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
@@ -275,7 +260,7 @@ class VKbot:
                             if 'city' not in user_info:
                                 user_info['city'] = city
                         counter_1 += 1
-                        # add_user_database(user_info)
+                        add_user_database(user_info)
                         try:
                             users_data = self.user_search(user_info)
                             list = self.get_users_list(users_data, user_id)
@@ -287,7 +272,7 @@ class VKbot:
                                     get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' +
                                     get_vk_id['vk_link']}, {','.join(sort_list)})
                                 applicants_list.append(get_vk_id)
-                                # add_applicant_database(get_vk_id, user_info, sort_list)
+                                add_applicant_database(get_vk_id, user_info, sort_list)
                         except TypeError:
                             message = 'Ошибка, попробуйте заново'
                             self.write_msg(user_id, 5, message)
@@ -295,8 +280,7 @@ class VKbot:
 
 
                     elif request == 'Добавить в избранное':
-                        # add_favorite_database(get_vk_id, user_info, sort_list)
-
+                        add_favorite_database(get_vk_id, user_info, sort_list)
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)
                         counter += 1
