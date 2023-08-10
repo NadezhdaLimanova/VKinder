@@ -3,8 +3,10 @@ import random
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from vk_api import VkUpload
 import datetime
-# from func_BD import add_user_database, add_applicant_database, add_favorite_database
+from pprint import pprint
+from BD.func_BD import add_user_database, add_applicant_database, add_favorite_database, favorites_output
 import re
 
 
@@ -20,6 +22,7 @@ class VKbot:
         self.vk = vk_api.VkApi(token=self.token)
         self.vk_user = vk_api.VkApi(token=self.token_user)
         self.longpoll = VkLongPoll(self.vk)
+        self.upload = VkUpload(self.vk)
         self.session_api = self.vk.get_api()
         self.vk_user_get = self.vk_user.get_api()
 
@@ -190,7 +193,6 @@ class VKbot:
             'count': 25
         })
         if resp:
-            print(resp)
             if resp.get('items'):
                 return resp.get('items')
 
@@ -240,6 +242,7 @@ class VKbot:
                             message = "Пока вы ничего не добавили в избранное"
                             self.write_msg(user_id, 3, message)
                         else:
+                            favorites_list = favorites_output(user_info)
 
                             message = "Ваш выбранные профили: "
                             self.write_msg(user_id, 3, message)
@@ -273,7 +276,7 @@ class VKbot:
                                     get_vk_id['first_name'] + ' ' + get_vk_id['last_name'] + '\n' + 'Ссылка на профиль: ' +
                                     get_vk_id['vk_link']}, {','.join(sort_list)})
                                 applicants_list.append(get_vk_id)
-                                add_applicant_database(get_vk_id, user_info)
+                                add_applicant_database(get_vk_id, user_info, sort_list)
                         except TypeError:
                             message = 'Ошибка, попробуйте заново'
                             self.write_msg(user_id, 5, message)
@@ -281,7 +284,7 @@ class VKbot:
 
 
                     elif request == 'Добавить в избранное':
-                        add_favorite_database(get_vk_id, user_info)
+                        add_favorite_database(get_vk_id, user_info, sort_list)
 
                         message = "Профиль добавлен в избранное"
                         self.write_msg(user_id, 1, message)

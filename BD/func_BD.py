@@ -66,7 +66,7 @@ def check_users(user_id: str):
     return current_user_id
 
 
-def add_applicant_database(applicant_data: dict, user_data: dict):
+def add_applicant_database(applicant_data: dict, user_data: dict, photo_list: list):
     """
     Функция проверяет есть ли в таблице applicant_table - id_vk_applicant соответствующего претендента
     Если претендента не существует в БД по id_user и id_vk_applicant, то заносим в БД:
@@ -87,16 +87,16 @@ def add_applicant_database(applicant_data: dict, user_data: dict):
                                      first_name=applicant_data['first_name'],
                                      last_name=applicant_data['last_name'],
                                      id_link_applicant=f"https://{applicant_data['vk_link']}",
-                                     photo_1='s',
-                                     photo_2='s',
-                                     photo_3='s'))
+                                     photo_1=photo_list[0],
+                                     photo_2=photo_list[1],
+                                     photo_3=photo_list[2]))
         session.commit()
         return True
     else:
         return False
 
 
-def add_favorite_database(applicant_data: dict, user_data: dict):
+def add_favorite_database(applicant_data: dict, user_data: dict, photo_list: list):
     """
     Функция проверяет есть ли в таблице favorites_table - id_vk_favorite соответствующего фаворита
     Если фаворит не был добавлен в избранное, то заносим в БД:
@@ -104,7 +104,6 @@ def add_favorite_database(applicant_data: dict, user_data: dict):
     если они имеются.
     :param applicant_data:принимает на вход данные фаворита
     :param user_data: принимает на вход данные пользователя
-    :return:
     """
     list_id_favorite = []
     for i in session.query(users_table).filter(users_table.id_vk_users == user_data['id']):
@@ -117,16 +116,24 @@ def add_favorite_database(applicant_data: dict, user_data: dict):
                                     first_name=applicant_data['first_name'],
                                     last_name=applicant_data['last_name'],
                                     id_link_favorite=f"https://{applicant_data['vk_link']}",
-                                    photo_1='s',
-                                    photo_2='s',
-                                    photo_3='s'))
+                                    photo_1=photo_list[0],
+                                    photo_2=photo_list[1],
+                                    photo_3=photo_list[2]))
         session.commit()
         return True
     else:
         return False
 
 
-# def favorites_output(user_data: dict):
-#     favorites_list = []
-#     for favorite in session.query(favorites_table).join(users_table).filter_by(user_data['id']).all():
-#         pass
+def favorites_output(user_data: dict):
+    favorites_list = []
+    for favorite in session.query(favorites_table).join(users_table).filter_by(id_vk_users=user_data['id']).all():
+        dict_ = {'id_link_favorites': favorite.id_link_favorite,
+                 'first_name': favorite.first_name,
+                 'last_name': favorite.last_name,
+                 'photo_1': favorite.photo_1,
+                 'photo_2': favorite.photo_2,
+                 'photo_3': favorite.photo_3}
+        favorites_list.append(dict_)
+    print(favorites_list)
+    return favorites_list
