@@ -30,7 +30,6 @@ def check_table():
     Проверяем, существует ли соответствующие таблицы в базе данных
     """
     name_table = ["users", "applicants", "favorites"]
-
     for table in name_table:
         check_tables = sqlalchemy.inspect(engine).has_table(f"{table}", schema="public")
         if check_tables == True:
@@ -71,7 +70,7 @@ def add_applicant_database(applicant_data: dict, user_data: dict, photo_list: li
     Функция проверяет есть ли в таблице applicant_table - id_vk_applicant соответствующего претендента
     Если претендента не существует в БД по id_user и id_vk_applicant, то заносим в БД:
     ID пользователя (таблица users_table), ID ВК претендента, имя, фамилия, ссылка на претендента и 3 фотографии,
-    если они имеются.
+    если они имеются
     :param applicant_data: принимает на вход данные претендента
     :param user_data: принимает на вход данные пользователя
     :return:
@@ -101,7 +100,7 @@ def add_favorite_database(applicant_data: dict, user_data: dict, photo_list: lis
     Функция проверяет есть ли в таблице favorites_table - id_vk_favorite соответствующего фаворита
     Если фаворит не был добавлен в избранное, то заносим в БД:
     ID пользователя (таблица users_table), ID ВК фаворита, имя, фамилия, ссылка на фаворита и 3 фотографии,
-    если они имеются.
+    если они имеются
     :param applicant_data:принимает на вход данные фаворита
     :param user_data: принимает на вход данные пользователя
     """
@@ -126,6 +125,11 @@ def add_favorite_database(applicant_data: dict, user_data: dict, photo_list: lis
 
 
 def favorites_output(user_data: dict):
+    """
+    Функция возвращает список словарей:
+    ссылка на профиль, имя, фамилия, 3 фотографии
+    :param user_data: принимает на вход данные пользователя
+    """
     favorites_list = []
     for favorite in session.query(favorites_table).join(users_table).filter_by(id_vk_users=user_data['id']).all():
         dict_ = {'id_link_favorites': favorite.id_link_favorite,
@@ -135,5 +139,4 @@ def favorites_output(user_data: dict):
                  'photo_2': favorite.photo_2,
                  'photo_3': favorite.photo_3}
         favorites_list.append(dict_)
-    print(favorites_list)
     return favorites_list

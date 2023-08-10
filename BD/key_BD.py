@@ -1,3 +1,3 @@
-username = 'postgres'
-password = 'Laura_245'
+username = ''
+password = ''
 name_bd = 'bd_bot'
