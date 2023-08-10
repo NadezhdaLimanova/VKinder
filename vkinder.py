@@ -12,7 +12,9 @@ import re
 
 class VKbot:
     def __init__(self, token, token_user):
-        # авторизация
+
+    # """авторизация"""
+
         self.token = token
         self.token_user = token_user
         self.vk = vk_api.VkApi(token=self.token)
@@ -22,7 +24,8 @@ class VKbot:
         self.session_api = self.vk.get_api()
         self.vk_user_get = self.vk_user.get_api()
 
-        # установка клавиатуры и кнопок
+    # """установка клавиатуры и кнопок"""
+
         self.keyboard_1 = VkKeyboard(one_time=True)
         self.keyboard_1.add_button('Показать анкеты', color=VkKeyboardColor.POSITIVE)
         self.keyboard_1.add_button('Показать избранное', color=VkKeyboardColor.PRIMARY)
@@ -37,8 +40,13 @@ class VKbot:
         self.keyboard_3 = VkKeyboard(one_time=True)
         self.keyboard_3.add_button('Вернуться', color=VkKeyboardColor.SECONDARY)
 
+        self.keyboard_4 = VkKeyboard(one_time=True)
+        self.keyboard_4.add_button('Начать заново', color=VkKeyboardColor.SECONDARY)
+
+    # """функция для определения в каком виде будет сообщение бота пользователю"""
+
     def write_msg(self, user_id, i, message,
-                  attachment=None):  # функция для определения в каком виде будет сообщение бота пользователю
+                  attachment=None):  #
         self.user_id = user_id
         self.i = i
         self.message = message
@@ -61,6 +69,14 @@ class VKbot:
             self.vk.method('messages.send', {'user_id': user_id, 'message': self.message,
                                              'random_id': randrange(10 ** 7)})
 
+        if self.i == 5:
+            self.vk.method('messages.send', {'user_id': user_id, 'message': self.message,
+                                             'random_id': randrange(10 ** 7),
+                                             'keyboard': self.keyboard_4.get_keyboard()})
+
+
+    # """функция для получения и распознавания сообщений от пользователя"""
+
     def listen(self):
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
@@ -68,6 +84,8 @@ class VKbot:
                 if event.to_me:
                     request = event.text
                     return request
+
+    # """функция для получения общей информации о пользователе из Вконтакте"""
 
     def get_user_data(self, user_id):
         self.user_data = {}
@@ -81,6 +99,8 @@ class VKbot:
                 else:
                     self.user_data[key] = value
             return self.user_data
+
+    # """функция для получения информации о пользователе из Вконтакте"""
 
     def check_bdate(self, user_info, user_id):
         if user_info:
@@ -196,7 +216,7 @@ class VKbot:
                 if count == 3:
                     return photos_list
 
-    def run(self):  # функция для алгоритма общения с пользователем и вывода информации
+    def run(self):
         applicants_list = []
         counter = 0
         counter_1 = 0
@@ -205,8 +225,7 @@ class VKbot:
                 user_id = event.user_id
                 if event.to_me:
                     request = event.text
-                    #info = self.get_user_data()
-                    first_name = self.get_user_data(user_id)['first_name']   # Использование сторонних классов
+                    first_name = self.get_user_data(user_id)['first_name']
                     if request == 'Начать' or request.lower() == 'привет':
                         message = f"Привет, {first_name}! Здесь мы поможем тебе найти свою половинку!  Нажми на кнопку ниже"
                         self.write_msg(user_id, 1, message)
@@ -216,15 +235,15 @@ class VKbot:
                             message = "Пока вы ничего не добавили в избранное"
                             self.write_msg(user_id, 3, message)
                         else:
-                            message = "Ваш выбранные профили: "
 
+                            message = "Ваш выбранные профили: "
                             self.write_msg(user_id, 3, message)
 
                     elif request == 'Вернуться':
                         message = 'Нажми кнопку ниже'
                         self.write_msg(user_id, 1, message)
 
-                    elif request in ["Показать анкеты", 'Пропустить']:
+                    elif request in ["Показать анкеты", 'Пропустить', 'Начать заново']:
                         if counter_1 == 0:
                             user_info = self.get_user_data(user_id)
                             age = self.check_bdate(user_info, user_id)
@@ -253,11 +272,11 @@ class VKbot:
                                 add_applicant_database(get_vk_id, user_info)
                         except TypeError:
                             message = 'Ошибка, попробуйте заново'
-                            self.write_msg(user_id, 4, message)
+                            self.write_msg(user_id, 5, message)
                             counter_1 -= 1
 
 
-                    elif request == 'Добавить в избранное':  # добавить избранный профиль в таблицу базы данных
+                    elif request == 'Добавить в избранное':
                         add_favorite_database(get_vk_id, user_info)
 
                         message = "Профиль добавлен в избранное"
@@ -274,14 +293,3 @@ class VKbot:
 
 
 
-if __name__ == "__main__":
-    check_database()
-    check_table()
-    with open('token.txt', 'r', encoding='utf-8') as file:
-        vk_token = file.read()
-    with open('token_vk.txt', 'r', encoding='utf-8') as file:
-        vk_token_user = file.read()
-    token = vk_token
-    token_user = vk_token_user
-    bot = VKbot(token, token_user)
-    bot.run()
