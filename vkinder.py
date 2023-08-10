@@ -3,12 +3,12 @@ import random
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from vk_api import VkUpload
 import datetime
-from pprint import pprint
-from BD.func_BD import add_user_database, add_applicant_database, add_favorite_database
+# from func_BD import add_user_database, add_applicant_database, add_favorite_database
 import re
 
+
+# [{'id_link_favorites': 'https://vk.com/id360045516', 'first_name': 'Р�РІР°РЅ', 'last_name': 'РџРµСЂС€РёРЅ', 'photo_1': 's', 'photo_2': 's', 'photo_3': 's'}, {'id_link_favorites': 'https://vk.com/id393932895', 'first_name': 'Aleksey', 'last_name': 'Arapov', 'photo_1': 's', 'photo_2': 's', 'photo_3': 's'}
 
 class VKbot:
     def __init__(self, token, token_user):
@@ -20,7 +20,6 @@ class VKbot:
         self.vk = vk_api.VkApi(token=self.token)
         self.vk_user = vk_api.VkApi(token=self.token_user)
         self.longpoll = VkLongPoll(self.vk)
-        self.upload = VkUpload(self.vk)
         self.session_api = self.vk.get_api()
         self.vk_user_get = self.vk_user.get_api()
 
@@ -100,7 +99,7 @@ class VKbot:
                     self.user_data[key] = value
             return self.user_data
 
-    # """функция для получения информации о пользователе из Вконтакте"""
+    # """функция для получения информации о дате рождения пользователя"""
 
     def check_bdate(self, user_info, user_id):
         if user_info:
@@ -127,6 +126,8 @@ class VKbot:
                         age = datetime.datetime.now().year - int(bdate[-4:])
                         return age
 
+    # """функция для получения информации о городе пользователя"""
+
     def check_city(self, user_info, user_id):
         if user_info:
             for item_dict in [user_info]:
@@ -139,9 +140,7 @@ class VKbot:
                     city = self.listen()
                     return city
 
-
-
-    """Поиск пары по параметрам"""
+    """Поиск потенциальных кандидатов для пользователя по определенным параметрам"""
 
     def user_search(self, user_info):
         resp = self.vk_user.method('users.search', {
@@ -158,6 +157,8 @@ class VKbot:
             if resp.get('items'):
                 return resp.get('items')
 
+    # """отсеивание закрытых аккаунтов потенциальных кандидатов"""
+
     def get_users_list(self, users_data, user_id):
         not_private_list = []
         if users_data:
@@ -172,13 +173,13 @@ class VKbot:
                     continue
             return not_private_list
 
-    """Выбор случайного аккаунта"""
+    """Выбор случайного  из списка потенциальных кандидатов"""
 
     def get_random_user(self, users_data, user_id):
         if users_data:
             return random.choice(users_data)
 
-    """Получение фотографий из VK"""
+    """Получение фотографий потенциального кандидата из VK"""
 
     def get_photos(self, vk_id):
 
@@ -193,6 +194,8 @@ class VKbot:
             if resp.get('items'):
                 return resp.get('items')
 
+    # """сортировка фотографий по количеству лайков"""
+
     def sort_by_likes(self, photos_dict):
         photos_by_likes_list = []
         for photos in photos_dict:
@@ -201,7 +204,7 @@ class VKbot:
         photos_by_likes_list = sorted(photos_by_likes_list, key=lambda x: x[2], reverse=True)
         return photos_by_likes_list
 
-    """Получение 3 лучших фотографий на основе лайков"""
+    """Получение 3 фотографий с самым большим количеством лайков"""
 
     def get_photos_list(self, sort_list):
         photos_list = []
@@ -215,6 +218,8 @@ class VKbot:
                 count += 1
                 if count == 3:
                     return photos_list
+
+    # """функция, запускающая бота"""
 
     def run(self):
         applicants_list = []
@@ -261,7 +266,6 @@ class VKbot:
                             users_data = self.user_search(user_info)
                             list = self.get_users_list(users_data, user_id)
                             get_vk_id = self.get_random_user(list, user_id)
-                            print(get_vk_id)
                             sort_list = self.get_photos_list(self.sort_by_likes(self.get_photos(get_vk_id['id'])))
 
                             if get_vk_id['id'] not in applicants_list:

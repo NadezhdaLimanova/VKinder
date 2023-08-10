@@ -1,5 +1,5 @@
-from vkinder import VKbot
-from BD.func_BD import check_database, check_table
+from bot_vkinder.BD.vkinder import VKbot
+from func_BD import check_database, check_table
 
 
 if __name__ == "__main__":
