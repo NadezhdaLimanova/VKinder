@@ -8,7 +8,7 @@ from BD.models_BD import Base, users_table, applicants_table, favorites_table
 from BD.key_BD import username, password, name_bd
 
 
-engine = create_engine(f'postgresql+psycopg2://{username}:{password}@localhost:5432/{name_bd}')
+engine = create_engine(f'postgresql://{username}:{password}@localhost:5432/{name_bd}')
 Session = sessionmaker(bind=engine)
 session = Session()
 
