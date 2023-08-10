@@ -6,7 +6,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api import VkUpload
 import datetime
 from pprint import pprint
-from BD.func_BD import check_database, check_table, add_user_database, add_applicant_database, add_favorite_database
+from BD.func_BD import add_user_database, add_applicant_database, add_favorite_database
 import re
 
 
