@@ -1,7 +1,7 @@
 ## Командный проект "VKinder"
 Выполнение кода запускается из файла [main.py](https://github.com/NadezhdaLimanova/VKinder/blob/main/main.py)
 
-Для успешного выполнения необходимо заполнить информацией о токенах файлы: 
+Для успешного запуска бота необходимо заполнить: 
 
 * [token.txt](https://github.com/NadezhdaLimanova/VKinder/blob/main/Bot/token.txt) - токен группы для бота, 
 * [token_vk.txt](https://github.com/NadezhdaLimanova/VKinder/blob/main/Bot/token_vk.txt) - токен пользователя
